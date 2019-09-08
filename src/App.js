@@ -76,7 +76,7 @@ class App extends React.Component {
       return pricingMenu
     }
     return (
-        <Countdown date={ Date.now() + this.state.timeLeft * 1000 }
+        <Countdown date={ Date.now() + (this.state.timeLeft - 10) * 1000 }
          renderer={ this.renderer }/>
     )
   }
