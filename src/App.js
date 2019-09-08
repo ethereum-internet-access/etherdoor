@@ -19,10 +19,8 @@ class App extends React.Component {
   }
 
   async freePass() {
-    // let response = await axios.post('/api/mac', { "timeLeft": 300, "txId": null })
-    console.log(axios)
-    this.setState({ connected: true, timeLeft: 30, start: Date.now() })
-    // console.log(response)
+    let response = await axios.post('/api/mac', { "timeLeft": 90, "txId": null })
+    this.setState({ connected: true, timeLeft: 90, start: Date.now() })
   }
 
   pad(num, size) {
@@ -30,7 +28,17 @@ class App extends React.Component {
     return s.substr(s.length-size);
   }
 
-  // TODO: componentDidMount handling connection state
+  async componentWillMount() {
+    let response = await axios.get('/api/mac')
+    if (response.status === 204) {
+      this.setState({ connected: false, timeLeft: 0 })
+      alert('Not connected')
+    } else {
+      let now = Date.now()
+      let timeLeft = response.data.timeLeft - (now - response.data.now) / 1000
+      this.setState({ connected: true, start: now, timeLeft: timeLeft })
+    }
+  }
 
   renderer = ({ hours, minutes, seconds, completed }) => {
     if (completed) {
