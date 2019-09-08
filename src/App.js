@@ -28,7 +28,7 @@ class App extends React.Component {
     return s.substr(s.length-size);
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
     let response = await axios.get('/api/mac')
     if (response.status === 204) {
       this.setState({ connected: false, timeLeft: 0 })
@@ -75,8 +75,6 @@ class App extends React.Component {
     if (!this.state.connected) {
       return pricingMenu
     }
-    console.log('Returning!')
-    console.log(this.state.timeLeft)
     return (
         <Countdown date={ Date.now() + this.state.timeLeft * 1000 }
          renderer={ this.renderer }/>
