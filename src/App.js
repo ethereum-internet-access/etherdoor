@@ -32,7 +32,6 @@ class App extends React.Component {
     let response = await axios.get('/api/mac')
     if (response.status === 204) {
       this.setState({ connected: false, timeLeft: 0 })
-      alert('Not connected')
     } else {
       let now = Date.now()
       let timeLeft = response.data.timeLeft - (now - response.data.now) / 1000
