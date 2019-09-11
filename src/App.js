@@ -4,6 +4,7 @@ import Pricing from './containers/Pricing.js'
 import axios from 'axios';
 import Countdown from 'react-countdown-now'
 import Typography from '@material-ui/core/Typography';
+import getWeb3 from './utils/getWeb3';
 
 class App extends React.Component {
 
@@ -19,8 +20,8 @@ class App extends React.Component {
   }
 
   async freePass() {
-    let response = await axios.post('/api/mac', { "timeLeft": 90, "txId": null })
-    this.setState({ connected: true, timeLeft: 90, start: Date.now() })
+    let response = await axios.post('/api/mac', { "timeLeft": 7200, "txId": null })
+    this.setState({ connected: true, timeLeft: 7200, start: Date.now() })
   }
 
   pad(num, size) {
@@ -29,6 +30,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
+    const web3 = await getWeb3()
     let response = await axios.get('/api/mac')
     if (response.status === 204) {
       this.setState({ connected: false, timeLeft: 0 })
