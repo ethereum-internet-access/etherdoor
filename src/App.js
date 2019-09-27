@@ -30,11 +30,11 @@ class App extends React.Component {
 
   async freePass() {
     const amount = '3000000000000000'
-    // await axios.post('/api/mac', { "timeLeft": 7200, "txId": null })
+    await axios.post('/api/mac', { "timeLeft": 60, "txId": null })
     trackPromise(
       this.state.contract.methods.openChannel(this.state.ephemeral.address).send(
         { from: this.state.accounts[0], value: amount, gas: '1000000' }).then(
-          this.setState({ connected: true, timeLeft: 7200, start: Date.now() })).catch(
+          this.setState({ connected: true, timeLeft: 60, start: Date.now() })).catch(
             () => this.setState({ connected: false, timeLeft: 0, start: Date.now() })))
   }
 
@@ -82,7 +82,7 @@ class App extends React.Component {
       return pricingMenu
     }
     return (
-        <Countdown date={ Date.now() + (this.state.timeLeft - 10) * 1000 }
+        <Countdown date={ Date.now() + this.state.timeLeft * 1000 }
          renderer={ this.renderer }/>
     )
   }
