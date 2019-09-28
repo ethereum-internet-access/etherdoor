@@ -164,7 +164,7 @@ export default function Pricing(props) {
           Choose your conditions, keep decentralized
         </Typography>
         <Typography variant="h5" align="center" color="textSecondary" component="p">
-          Connect your wallet to http://192.168.4.1:8545 ropsten network proxy
+          Connect your wallet to http://192.168.4.1:8545 Ropsten network proxy
         </Typography>
       </Container>
       {/* End hero unit */}
