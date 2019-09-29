@@ -117,7 +117,7 @@ const tiers = [
     buttonVariant: 'contained',
   },
   {
-    title: '1 Minute pass',
+    title: '3 Minutes pass',
     subheader: '1 minutes pass',
     price: '0.003',
     description: ['512 MB/s', 'State channel'],
@@ -202,7 +202,7 @@ export default function Pricing(props) {
                 </CardContent>
                 <CardActions>
               <Button fullWidth variant={tier.buttonVariant} color="primary"
-            onClick={tier.title === '1 Minute pass' ? props.freePass : undefined }
+            onClick={tier.title === '3 Minutes pass' ? props.threeMinutesPass : undefined }
               >
                     {tier.buttonText}
                   </Button>

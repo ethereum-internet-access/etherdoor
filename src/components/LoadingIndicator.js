@@ -20,7 +20,7 @@ const LoadingIndicator = props => {
         Waiting for Ethereum transaction ...
         </Typography>
         <br/>
-        <Loader id="Loader" type="ThreeDots" color="#2BAD60" height="100" width="100" />
+        <Loader id="Loader" type="ThreeDots" color="inherit" style={{ height: '100', width: '100' }} />
         </div>
         </div>)
   }

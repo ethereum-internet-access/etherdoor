@@ -16,32 +16,59 @@ class App extends React.Component {
 
   constructor(props) {
     super(props)
-    this.freePass = this.freePass.bind(this)
+    this.threeMinutesPass = this.threeMinutesPass.bind(this)
     this.renderer = this.renderer.bind(this)
-    this.ephemeralKeyPair = undefined
-    this.web3 = undefined
-    this.contract = undefined
-    this.ephemeral_key = undefined
+    this.startChannel = this.startChannel.bind(this)
+    this.signMicroPayment = this.signMicroPayment.bind(this)
     this.state = {
       connected: false,
-      timeLeft: 0
+      timeLeft: 0,
+      depositAmount: 0,
+      channelId: undefined,
+      ephemeral: undefined,
+      contract: undefined,
+      web3: undefined,
     }
   }
 
-  async freePass() {
+  async signMicroPayment() {
+    if(!this.state.channelId) {
+      return
+    }
+    const hash = this.state.web3.utils.soliditySha3(
+      { t: 'address', v: CONTRACT_ADDRESS },
+      { t: 'uint256', v: '10' },
+      { t: 'uint256', v: this.state.channelId })
+    const signature = await this.state.web3.eth.accounts.sign(hash, this.state.ephemeral.privateKey)
+    console.log(this.state.channelId)
+    console.log(signature)
+  }
+
+  startChannel(receipt) {
+    try {
+      this.setState({ channelId: receipt.events.ChannelOpened.returnValues.channelId,
+                      depositAmount: receipt.events.ChannelOpened.returnValues.depositAmount })
+    } catch(error) {
+      console.log(error)
+    }
+  }
+
+  async threeMinutesPass() {
     const amount = '3000000000000000'
-    await axios.post('/api/mac', { "timeLeft": 60, "txId": null })
+    // await axios.post('/api/mac', { "timeLeft": 60, "txId": null })
     trackPromise(
       this.state.contract.methods.openChannel(this.state.ephemeral.address).send(
         { from: this.state.accounts[0], value: amount, gas: '1000000' }).then(
-          this.setState({ connected: true, timeLeft: 60, start: Date.now() })).catch(
-            () => this.setState({ connected: false, timeLeft: 0, start: Date.now() })))
+            this.setState({ connected: true, timeLeft: 60, start: Date.now() })
+        ).catch(
+          () => this.setState({ connected: false, timeLeft: 0, start: Date.now() }))).then(
+            this.startChannel
+          )
   }
 
   async componentDidMount() {
     const web3 = await getWeb3()
     const accounts = await web3.eth.getAccounts();
-    console.log(CONTRACT_ADDRESS)
     const contract = new web3.eth.Contract(
       contractAbi,
       CONTRACT_ADDRESS
@@ -56,18 +83,21 @@ class App extends React.Component {
       this.setState({ connected: true, start: now, timeLeft: timeLeft, contract: contract,
                       web3: web3, accounts: accounts, ephemeral: ephemeral })
     }
+    setInterval(() => this.signMicroPayment(), 6000)
   }
 
   renderer = ({ hours, minutes, seconds, completed }) => {
     if (completed) {
       return (
           <div className="App">
-          <Pricing freePass={this.freePass}/>
+          <Pricing threeMinutesPass={this.threeMinutesPass}/>
           </div>
       )
     } else {
       return (
+        <div>
           <LoadingIndicator hours={hours} minutes={minutes} seconds={seconds}/>
+        </div>
       )
     }
   }
@@ -75,7 +105,7 @@ class App extends React.Component {
   render() {
     let pricingMenu = (
         <div className="App">
-        <Pricing freePass={ this.freePass }/>
+        <Pricing threeMinutesPass={ this.threeMinutesPass }/>
         </div>
     )
     if (!this.state.connected) {
