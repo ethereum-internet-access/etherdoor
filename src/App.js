@@ -12,6 +12,8 @@ import LoadingIndicator from './components/LoadingIndicator'
 
 const CONTRACT_ADDRESS = '0x41B301c0b0AbbFEef99803c23A281712e29B6EF1'
 
+/* global BigInt */
+
 class App extends React.Component {
 
   constructor(props) {
@@ -28,6 +30,7 @@ class App extends React.Component {
       ephemeral: undefined,
       contract: undefined,
       web3: undefined,
+      interval: undefined
     }
   }
 
@@ -35,12 +38,23 @@ class App extends React.Component {
     if(!this.state.channelId) {
       return
     }
+    const elapsedTime = (Date.now() - this.state.start)/1000
+    const ratio = Math.round(100.0 * elapsedTime/this.state.timeLeft)
+    let amount = BigInt(ratio) * BigInt(this.state.depositAmount) / BigInt(100)
+    if (BigInt(this.state.depositAmount) - BigInt(amount) < 0) {
+      clearInterval(this.state.interval)
+      console.log('Clearing micropayment interval, reached ' +
+                  BigInt(this.state.depositAmount) / BigInt(1000000000000) + ' μETH')
+      amount = this.state.depositAmount
+    }
+    console.log('Generating payment of ' + BigInt(amount) / BigInt(1000000000000) + ' μETH')
+    console.log('channelId = ' + this.state.channelId)
     const hash = this.state.web3.utils.soliditySha3(
       { t: 'address', v: CONTRACT_ADDRESS },
-      { t: 'uint256', v: '10' },
+      { t: 'uint256', v: amount.toString() },
       { t: 'uint256', v: this.state.channelId })
     const signature = await this.state.web3.eth.accounts.sign(hash, this.state.ephemeral.privateKey)
-    console.log(this.state.channelId)
+    console.log('Signature')
     console.log(signature)
   }
 
@@ -83,7 +97,8 @@ class App extends React.Component {
       this.setState({ connected: true, start: now, timeLeft: timeLeft, contract: contract,
                       web3: web3, accounts: accounts, ephemeral: ephemeral })
     }
-    setInterval(() => this.signMicroPayment(), 6000)
+    const interval = setInterval(() => this.signMicroPayment(), 10000)
+    this.setState({ interval: interval })
   }
 
   renderer = ({ hours, minutes, seconds, completed }) => {
