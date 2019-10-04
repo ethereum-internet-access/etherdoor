@@ -18,7 +18,7 @@ class App extends React.Component {
 
   constructor(props) {
     super(props)
-    this.threeMinutesPass = this.threeMinutesPass.bind(this)
+    this.someMinutesPass = this.someMinutesPass.bind(this)
     this.renderer = this.renderer.bind(this)
     this.startChannel = this.startChannel.bind(this)
     this.signMicroPayment = this.signMicroPayment.bind(this)
@@ -72,14 +72,13 @@ class App extends React.Component {
     }
   }
 
-  async threeMinutesPass() {
-    const amount = '3000000000000000'
-    // await axios.post('/api/mac', { "timeLeft": 60, "txId": null })
-    console.log(this.state.contract)
+  async someMinutesPass() {
+    const amount = '2000000000000000'
+    await axios.post('/api/mac', { "timeLeft": 900,"txId": null })
     trackPromise(
       this.state.contract.methods.openChannel(this.state.ephemeral.address).send(
         { from: this.state.accounts[0], value: amount, gas: '1000000' }).then(
-            this.setState({ connected: true, timeLeft: 600, start: Date.now() })
+          this.setState({ connected: true, timeLeft: 900, start: Date.now() })
         ).catch(
           () => this.setState({ connected: false, timeLeft: 0, start: Date.now() }))).then(
             this.startChannel
@@ -88,12 +87,11 @@ class App extends React.Component {
 
   async componentDidMount() {
     const web3 = await getWeb3()
-    const accounts = await web3.eth.getAccounts();
+    const accounts = await web3.eth.getAccounts()
     const contract = new web3.eth.Contract(
       contractAbi,
       CONTRACT_ADDRESS
     )
-    console.log(contract)
     let response = await axios.get('api/mac')
     const ephemeral = web3.eth.accounts.create()
     if (response.status === 204) {
@@ -112,7 +110,7 @@ class App extends React.Component {
     if (completed) {
       return (
           <div className="App">
-          <Pricing threeMinutesPass={this.threeMinutesPass}/>
+          <Pricing someMinutesPass={this.someMinutesPass}/>
           </div>
       )
     } else {
@@ -127,7 +125,7 @@ class App extends React.Component {
   render() {
     let pricingMenu = (
         <div className="App">
-        <Pricing threeMinutesPass={ this.threeMinutesPass }/>
+        <Pricing someMinutesPass={ this.someMinutesPass }/>
         </div>
     )
     if (!this.state.connected) {
